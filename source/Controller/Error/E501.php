@@ -1,0 +1,18 @@
+<?php
+
+namespace Controller\Error;
+
+use Energize\Front;
+use PhpMx\View;
+
+/** Não implementado */
+class E501
+{
+    function default()
+    {
+        Front::setTitle('Ops!');
+        Front::setLayout('center');
+        Front::setDescription('Não implementado');
+        return View::render('_global/error/default.html', ['status' => 501]);
+    }
+}

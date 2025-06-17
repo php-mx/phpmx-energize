@@ -134,11 +134,11 @@ abstract class Front
     protected static function renderizePage(string $content): string
     {
         $version = cache('energize-front-version', fn() => [
-            'script' => md5(View::render("_global/script/script.js")),
-            'style' => md5(View::render("_global/style/style.scss"))
+            'script' => md5(View::render("_global/base/script")),
+            'style' => md5(View::render("_global/base/style"))
         ]);
 
-        $template = View::render('_global/base', [
+        $template = View::render('_global/base/html', [
             'HEAD' => self::$HEAD,
             'SCRIPT' => url('script.js', ['v' => $version['script']]),
             'STYLE' => url('style.css', ['v' => $version['style']]),
