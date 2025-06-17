@@ -3,7 +3,6 @@
 namespace Energize;
 
 use PhpMx\Code;
-use PhpMx\Json;
 use PhpMx\Request;
 use PhpMx\View;
 

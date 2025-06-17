@@ -1,4 +1,13 @@
 {
+    "name": "phpmx/energize",
+    "description": "Frontend monolitico e dinamico em PHPMX",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "André Ricardo",
+            "email": "contatoadmx@gmail.com"
+        }
+    ],
     "minimum-stability": "dev",
     "require": {
         "phpmx/server": "dev-main",
