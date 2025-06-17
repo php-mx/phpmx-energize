@@ -13,6 +13,6 @@ class E503
         Front::setTitle('Ops!');
         Front::setLayout('center');
         Front::setDescription('Indisponível');
-        return View::render('_global/error/default.html', ['status' => 503]);
+        return View::render('_base/error', ['status' => 503]);
     }
 }

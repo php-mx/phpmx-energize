@@ -13,6 +13,6 @@ class E403
         Front::setTitle('Ops!');
         Front::setLayout('center');
         Front::setDescription('Acesso negado');
-        return View::render('_global/error/default.html', ['status' => 403]);
+        return View::render('_base/error', ['status' => 403]);
     }
 }

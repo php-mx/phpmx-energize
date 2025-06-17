@@ -117,7 +117,7 @@ abstract class Front
 
         $layout = self::$LAYOUT;
 
-        $layout = View::render("_global/layout/$layout", [
+        $layout = View::render("_base/layout/$layout", [
             'HEAD' => self::$HEAD,
             'ASIDE' => $aside
         ]);
@@ -133,11 +133,11 @@ abstract class Front
     protected static function renderizePage(string $content): string
     {
         $version = cache('energize-front-version', fn() => [
-            'script' => md5(View::render("_global/base/script")),
-            'style' => md5(View::render("_global/base/style"))
+            'script' => md5(View::render("_base/script")),
+            'style' => md5(View::render("_base/script"))
         ]);
 
-        $template = View::render('_global/base/html', [
+        $template = View::render('_base/base', [
             'HEAD' => self::$HEAD,
             'SCRIPT' => url('script.js', ['v' => $version['script']]),
             'STYLE' => url('style.css', ['v' => $version['style']]),

@@ -13,6 +13,6 @@ class E400
         Front::setTitle('Ops!');
         Front::setLayout('center');
         Front::setDescription('Sintaxe intorreta');
-        return View::render('_global/error/default.html', ['status' => 400]);
+        return View::render('_base/error', ['status' => 400]);
     }
 }

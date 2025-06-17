@@ -13,6 +13,6 @@ class E501
         Front::setTitle('Ops!');
         Front::setLayout('center');
         Front::setDescription('Não implementado');
-        return View::render('_global/error/default.html', ['status' => 501]);
+        return View::render('_base/error', ['status' => 501]);
     }
 }

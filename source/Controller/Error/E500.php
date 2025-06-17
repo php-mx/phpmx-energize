@@ -13,6 +13,6 @@ class E500
         Front::setTitle('Ops!');
         Front::setLayout('center');
         Front::setDescription('Erro interno do servidor');
-        return View::render('_global/error/default.html', ['status' => 500]);
+        return View::render('_base/error', ['status' => 500]);
     }
 }

@@ -13,6 +13,6 @@ class E404
         Front::setTitle('Ops!');
         Front::setLayout('center');
         Front::setDescription('Não encontrado');
-        return View::render('_global/base/error', ['status' => 404]);
+        return View::render('_base/error', ['status' => 404]);
     }
 }

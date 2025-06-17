@@ -1,0 +1,1 @@
+<div id="CONTENT">[#CONTENT]</div>

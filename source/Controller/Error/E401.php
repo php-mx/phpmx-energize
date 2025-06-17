@@ -13,6 +13,6 @@ class E401
         Front::setTitle('Ops!');
         Front::setLayout('center');
         Front::setDescription('Requer permissão');
-        return View::render('_global/error/default.html', ['status' => 401]);
+        return View::render('_base/error', ['status' => 401]);
     }
 }
