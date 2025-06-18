@@ -134,7 +134,7 @@ abstract class Front
     {
         $version = cache('energize-front-version', fn() => [
             'script' => md5(View::render("_base/script")),
-            'style' => md5(View::render("_base/script"))
+            'style' => md5(View::render("_base/style"))
         ]);
 
         $template = View::render('_base/base', [
@@ -150,7 +150,7 @@ abstract class Front
                 'content' => $content,
                 'state' => self::getStateHash(),
             ],
-            'ALERT' => self::$ALERT
+            'ALERT' => vueEncapsulate(self::$ALERT)
         ]);
     }
 
@@ -195,7 +195,7 @@ abstract class Front
         $style = implode("\n", $style ?? []);
 
         if (!empty($style)) {
-            $style = Scss::compile($style);
+            $style = preg_replace(["/\/\*[\s\S]*?\*\//", "/\s+\n/", "/\n\s+/", "/\s{2,}/"], ["", "\n", "\n", " "], $style);
             if (!empty($style))
                 $style = "<style>\n$style\n</style>";
         }
@@ -246,7 +246,7 @@ abstract class Front
         $style = implode("\n", $style ?? []);
 
         if (!empty($style)) {
-            $style = Scss::compile($style);
+            $style = preg_replace(["/\/\*[\s\S]*?\*\//", "/\s+\n/", "/\n\s+/", "/\s{2,}/"], ["", "\n", "\n", " "], $style);
             if (!empty($style))
                 $style = "<style>$style</style>";
         }

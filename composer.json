@@ -11,8 +11,7 @@
     "minimum-stability": "dev",
     "require": {
         "phpmx/server": "dev-main",
-        "phpmx/view": "dev-main",
-        "scssphp/scssphp": "dev-main"
+        "phpmx/view": "dev-main"
     },
     "autoload": {
         "psr-4": {
@@ -22,9 +21,9 @@
             "helper/constant/request_is.php",
             "helper/function/redirect.php",
             "helper/function/url.php",
+            "helper/function/vue.php",
             "helper/script/front.php",
-            "helper/script/path.php",
-            "helper/script/scss.php"
+            "helper/script/path.php"
         ]
     }
 }
