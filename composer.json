@@ -23,7 +23,8 @@
             "helper/function/url.php",
             "helper/function/vue.php",
             "helper/script/front.php",
-            "helper/script/path.php"
+            "helper/script/path.php",
+            "helper/script/view.php"
         ]
     }
 }
