@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.querySelectorAll("script:not([static])").forEach((tag) => tag.setAttribute("static", ""));
   _app.core.run();
   _app.alert(currentAlert);
-  console.log("⚡ENERGIZE⚡");
+  console.log("⚡PHPMX-ENERGIZE⚡");
 });
 
 const _page = {};
