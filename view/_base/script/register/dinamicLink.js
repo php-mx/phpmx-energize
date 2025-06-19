@@ -1,7 +1,7 @@
-_app.core.register("[href]:not([static]):not([href=''])", (element) => {
+energize.core.register("[href]:not([static]):not([href=''])", (element) => {
   element.addEventListener("click", (event) => {
     event.preventDefault();
     let url = new URL(element.href ?? element.getAttribute("href"), document.baseURI).href;
-    _app.go(url, document.baseURI);
+    energize.go(url, document.baseURI);
   });
 });

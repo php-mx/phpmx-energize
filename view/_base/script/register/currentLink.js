@@ -1,4 +1,4 @@
-_app.core.register("[href]:not([href=''])", (element) => {
+energize.core.register("[href]:not([href=''])", (element) => {
   let url = new URL(element.href ?? element.getAttribute("href"), document.baseURI).href + "/";
   let href = window.location.href + "/";
 

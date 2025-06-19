@@ -1,6 +1,6 @@
-_app.core.register("form:not([static])", (element) => {
+energize.core.register("form:not([static])", (element) => {
   element.addEventListener("submit", async (ev) => {
     ev.preventDefault();
-    _app.submit(element);
+    energize.submit(element);
   });
 });
