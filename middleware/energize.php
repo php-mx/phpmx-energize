@@ -45,7 +45,7 @@ return new class {
                 'data' => $content
             ];
             if (env('DEV'))
-                $response['log'] = Log::getArray();
+                $content['log'] = Log::getArray();
         } else {
             if (env('DEV'))
                 $content = prepare("$content\n<!--[#]-->", Log::getString());
@@ -126,6 +126,9 @@ return new class {
         Response::header('Error-Message', remove_accents($headerMessageError));
         Response::header('Error-Status', $response['info']['status']);
 
+        if (env('DEV'))
+            $response['log'] = Log::getArray();
+
         if (env('DEV') && $response['info']['error']) {
             $response['info']['file'] = $e->getFile();
             $response['info']['line'] = $e->getLine();
@@ -153,6 +156,10 @@ return new class {
                 ],
                 'data' => null
             ];
+
+            if (env('DEV'))
+                $scheme['log'] = Log::getArray();
+
             Response::header('Mx-Location', $url);
             Response::content($scheme);
             Response::status(STS_OK);
