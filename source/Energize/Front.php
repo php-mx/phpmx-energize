@@ -150,7 +150,7 @@ abstract class Front
                 'content' => $content,
                 'state' => self::getStateHash(),
             ],
-            'ALERT' => vueEncapsulate(self::$ALERT)
+            'ALERT' => encapsulate(self::$ALERT)
         ]);
     }
 

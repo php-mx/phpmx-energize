@@ -8,6 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const _page = {};
 
+const encapsulate = (value) => JSON.stringify(value);
+const decapsulate = (value) => JSON.parse(value);
+
 const _app = {
   REGISTRED: {},
   WORKING: false,
@@ -105,29 +108,6 @@ const _app = {
       document.title = head.title;
       document.head.querySelector('meta[name="description"]').setAttribute("content", head.description);
       document.head.querySelector('link[rel="icon"]').setAttribute("href", head.favicon);
-    },
-  },
-  vue: {
-    mountApp(component, elementId) {
-      _app.core
-        .loadScript("/assets/third/vue.js")
-        .then(() => Vue.createApp(component).mount(elementId))
-        .catch((e) => console.error("impossible to load [vue.js]", e));
-    },
-    encapsulate(value) {
-      return JSON.stringify(value);
-    },
-    decapsulate(value) {
-      return JSON.parse(value);
-    },
-    importField(fieldId) {
-      return _app.vue.decapsulate(document.getElementById(fieldId).value);
-    },
-    exportField(value, fieldId) {
-      document.getElementById(fieldId).value = _app.vue.encapsulate(value);
-    },
-    submitForm(formId) {
-      document.getElementById(formId).requestSubmit();
     },
   },
   go(url, force = false) {
