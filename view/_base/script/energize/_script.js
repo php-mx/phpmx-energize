@@ -213,14 +213,12 @@ energize.debounce = (func, wait) => {
 };
 
 energize.submit = (form, appentData = {}) => {
-  let showmessage = form.querySelector(".form-alert");
+  const notify = form.dataset.notify ? document.getElementById(form.dataset.notify) : form.querySelector("[data-notify]");
 
-  if (form.dataset.alert) showmessage = document.getElementById(form.dataset.alert);
+  if (notify) notify.innerHTML = "";
 
-  if (showmessage) showmessage.innerHTML = "";
-
-  form.querySelectorAll("[data-input].error").forEach((label) => {
-    label.classList.remove("error");
+  form.querySelectorAll("[data-error]").forEach((el) => {
+    el.removeAttribute("data-error");
   });
 
   let url = form.action;
@@ -228,17 +226,21 @@ energize.submit = (form, appentData = {}) => {
   let header = { "Request-State": state };
   let data = new FormData(form);
 
-  for (const [key, value] of Object.entries(appentData)) {
-    data.append(key, value);
+  for (let [key, value] of data.entries()) {
+    console.log(key, value);
   }
 
-  form.querySelectorAll("input[type=file]").forEach((input) => {
-    for (var i = 0; i < input.files.length; i++) {
-      if (input.getAttribute("name")) {
-        data.append(input.getAttribute("name") + "[]", input.files[i]);
-      }
-    }
-  });
+  appentData.formKey = form.getAttribute("data-form-key");
+  for (const [key, value] of Object.entries(appentData)) data.append(key, value);
+
+  // ⚠️ Suporte a arquivos ainda não implementado no backend
+  //   form.querySelectorAll("input[type=file]").forEach((input) => {
+  //     for (var i = 0; i < input.files.length; i++) {
+  //       if (input.getAttribute("name")) {
+  //         data.append(input.getAttribute("name") + "[]", input.files[i]);
+  //       }
+  //     }
+  //   });
 
   energize.core
     .request(url, form.getAttribute("method") ?? "post", data, header)
@@ -257,16 +259,14 @@ energize.submit = (form, appentData = {}) => {
       }
 
       if (resp.info.error && resp.info.field) {
-        let label = form.querySelector(`[data-input=${resp.info.field}]`);
-        if (label) label.classList.add("error");
+        const label = form.querySelector(`[data-input="${resp.info.field}"]`);
+        if (label) label.setAttribute("data-error", resp.info.message ?? "true");
       }
 
-      if (showmessage) {
+      if (notify) {
         let spanClass = `sts_` + (resp.info.error ? "erro" : "success");
         let message = resp.info.message ?? (resp.info.error ? "erro" : "ok");
-        let description = resp.info.description ?? "";
-        if (description) description = `<span>${description}</span>`;
-        showmessage.innerHTML = `<span class='${spanClass}'><span>${message}</span>${description}</span>`;
+        notify.innerHTML = `<span class='${spanClass}'>${message}</span>`;
       }
     })
     .catch(() => null);
