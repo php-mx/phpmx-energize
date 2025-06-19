@@ -2,11 +2,15 @@
 
 namespace Energize;
 
+use PhpMx\Dir;
+use PhpMx\File;
 use PhpMx\Import;
+use PhpMx\Path;
 
 abstract class Icon
 {
-    protected static $cache = [];
+    protected static array $cache = [];
+    protected static ?array $scheme = null;
 
     static function get(string $iconRef, ...$styleClass): string
     {
@@ -17,10 +21,38 @@ abstract class Icon
 
     static function svg(string $iconRef): string
     {
-        $iconRef = str_replace('.', '/', $iconRef);
+        $file = self::getFile($iconRef) ?? self::getFile('none');
 
-        self::$cache[$iconRef] = self::$cache[$iconRef] ?? Import::content("storage/icon/$iconRef.svg");
+        $hash = md5($file);
 
-        return empty(self::$cache[$iconRef]) ? self::svg('_none') : self::$cache[$iconRef];
+        self::$cache[$hash] = self::$cache[$hash] ?? Import::content($file);
+
+        return self::$cache[$hash];
+    }
+
+    static function getFile($iconRef): ?string
+    {
+        $iconRef = strToCamelCase($iconRef);
+
+        self::$scheme = self::$scheme ?? self::$scheme ?? cache('energize-icons', function () {
+            $paths = Path::seekDirs('storage/icons');
+
+            $icons = [];
+
+            foreach ($paths as $path) {
+                $files = Dir::seekForFile($path, true);
+                foreach ($files as $file) {
+                    $iconRef = File::getName($file);
+                    $iconRef = strToCamelCase($iconRef);
+                    $icons[$iconRef] = path($path, $file);
+                }
+            }
+
+            return $icons;
+        });
+
+        $file = self::$scheme[$iconRef] ?? null;
+
+        return $file;
     }
 }
