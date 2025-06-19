@@ -161,7 +161,7 @@ abstract class Front
 
         $string = count($html) ? self::formatHtmlFull($string) : self::formatHtmlFragment($string);
 
-        $string = str_replace_all(["\n\n", "\n ", "  ", "\r"], ["\n", "\n", ' ', ' '], trim($string));
+        $string = minifyHtml($string);
 
         return $string;
     }
@@ -183,9 +183,9 @@ abstract class Front
         $script = implode("\n", $script ?? []);
 
         if (!empty($script)) {
-            $script = preg_replace(array("/\s+\n/", "/\n\s+/"), array("\n", "\n"), $script);
+            $script = minifyJs($script);
             if (!empty($script))
-                $script = "<script>\n$script\n</script>";
+                $script = "<script>$script</script>\n";
         }
 
         preg_match_all('/<style[^>]*>(.*?)<\/style>/s', $string, $tag);
@@ -195,9 +195,9 @@ abstract class Front
         $style = implode("\n", $style ?? []);
 
         if (!empty($style)) {
-            $style = preg_replace(["/\/\*[\s\S]*?\*\//", "/\s+\n/", "/\n\s+/", "/\s{2,}/"], ["", "\n", "\n", " "], $style);
+            $style = minifyCss($style);
             if (!empty($style))
-                $style = "<style>\n$style\n</style>";
+                $style = "<style>$style</style>";
         }
 
         preg_match_all('/<head[^>]*>(.*?)<\/head>/s', $string, $tag);
@@ -234,9 +234,9 @@ abstract class Front
         $script = implode("\n", $script ?? []);
 
         if (!empty($script)) {
-            $script = preg_replace(array("/\s+\n/", "/\n\s+/"), array("\n", "\n"), $script);
+            $script = minifyJs($script);
             if (!empty($script))
-                $script = "<script>\n$script\n</script>";
+                $script = "<script>$script</script>";
         }
 
         preg_match_all('/<style[^>]*>(.*?)<\/style>/s', $string, $tag);
@@ -246,9 +246,9 @@ abstract class Front
         $style = implode("\n", $style ?? []);
 
         if (!empty($style)) {
-            $style = preg_replace(["/\/\*[\s\S]*?\*\//", "/\s+\n/", "/\n\s+/", "/\s{2,}/"], ["", "\n", "\n", " "], $style);
+            $style = minifyCss($style);
             if (!empty($style))
-                $style = "<style>$style</style>";
+                $style = "<style>$style</style>\n";
         }
 
         $string = [$src, $style, $string, $script];
