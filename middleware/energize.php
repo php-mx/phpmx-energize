@@ -9,7 +9,6 @@ use Controller\Error\E500;
 use Controller\Error\E501;
 use Controller\Error\E503;
 use Energize\Front;
-use PgSql\Lob;
 use PhpMx\Log;
 use PhpMx\Response;
 
@@ -45,8 +44,11 @@ return new class {
                 ],
                 'data' => $content
             ];
+            if (env('DEV'))
+                $response['log'] = Log::getArray();
         } else {
-            $content = prepare("$content\n<!--[#]-->", Log::getString());
+            if (env('DEV'))
+                $content = prepare("$content\n<!--[#]-->", Log::getString());
         }
 
         Response::content($content);
