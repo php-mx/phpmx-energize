@@ -1,0 +1,33 @@
+<?php
+
+use PhpMx\Dir;
+use PhpMx\File;
+use PhpMx\Terminal;
+
+return new class extends Terminal {
+
+    function __invoke()
+    {
+        Dir::create('storage/icons');
+
+        $this->promote('helper/script/front.php');
+
+        $this->promote('routes/front.php');
+
+        $this->promote('view/_base/base/_content.html');
+        $this->promote('view/_base/error/_content.html');
+        $this->promote('view/_base/layout/center/_content.html');
+        $this->promote('view/_base/layout/default/_content.html');
+        $this->promote('view/_base/script/_script.js');
+        $this->promote('view/_base/style/_style.css');
+
+        $this->promote('view/_page/wellcome/_content.html');
+        $this->promote('view/_page/wellcome/_style.css');
+    }
+
+    protected function promote($file)
+    {
+        if (!File::check($file))
+            self::run('promote', $file);
+    }
+};
