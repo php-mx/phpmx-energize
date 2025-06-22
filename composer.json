@@ -8,10 +8,9 @@
             "email": "contatoadmx@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
-        "phpmx/server": "dev-main",
-        "phpmx/view": "dev-main"
+        "phpmx/server": "^1.0",
+        "phpmx/view": "^1.0"
     },
     "autoload": {
         "psr-4": {
