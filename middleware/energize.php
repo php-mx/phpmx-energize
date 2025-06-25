@@ -1,106 +1,97 @@
 <?php
 
-use Controller\Error\E400;
-use Controller\Error\E401;
-use Controller\Error\E403;
-use Controller\Error\E404;
-use Controller\Error\E405;
-use Controller\Error\E500;
-use Controller\Error\E501;
-use Controller\Error\E503;
 use Energize\Front;
 use PhpMx\Log;
+use PhpMx\Request;
 use PhpMx\Response;
+use PhpMx\View;
 
-return new class {
+return new class extends Front {
 
     function __invoke(Closure $next)
     {
+        if (IS_API) return $next();
+
         try {
-            $this->page($next());
+            $content = $next();
+            if (is_httpStatus($content)) throw new Exception(env("STM_$content"), $content);
+            $content = $this->renderize($content);
         } catch (Throwable $e) {
-            if ($e->getCode() == STS_REDIRECT) $this->redirect($e);
-            if (IS_GET) $this->errorPage($e);
-            $this->catch($e);
+            $content = $this->renderizeThrowable($e);
         }
-    }
 
-    function page($content)
-    {
-        if (is_httpStatus($content))
-            throw new Exception(env("STM_$content"), $content);
-
-        $content = Front::renderize($content);
-
-        if (is_array($content)) {
-            $status = Response::getStatus() ?? STS_OK;
-            $content = [
-                'info' => [
-                    'mx' => true,
-                    'status' => $status,
-                    'error' => is_httpStatusError($status),
-                    'message' => env("STM_$status", null),
-                    'alert' => Front::getAlerts(),
-                ],
-                'data' => $content
-            ];
-            if (env('DEV'))
-                $content['log'] = Log::getArray();
-        } else {
-            if (env('DEV'))
-                $content = prepare("$content\n<!--[#]-->", Log::getString());
-        }
+        if (env('DEV') && is_array($content))
+            $content['log'] = Log::getArray();
 
         Response::content($content);
         Response::send();
     }
 
-    function errorPage(Throwable $e)
+    protected function renderize($content): string|array
     {
-        try {
-            list($status, $message, $file, $line) = [
-                $e->getCode(),
-                $e->getMessage(),
-                path($e->getFile()),
-                $e->getLine()
-            ];
+        $content = $content ?? '';
 
-            if (!is_httpStatus($status))
-                $status = STS_INTERNAL_SERVER_ERROR;
+        if (is_array($content)) $content = implode('', $content);
 
-            Response::header('Error-Message', remove_accents($message));
-            Response::header('Error-Status', $status);
+        if (!IS_PARTIAL) {
+            $content = $this->renderizeLayout($content);
+            $content = $this->renderizeBase($content);
 
-            if (env('DEV')) {
-                Response::header('Error-File', $file);
-                Response::header('Error-Line', $line);
-            }
+            if (env('DEV')) $content = prepare("[#]\n<!--[#]-->", [$content, Log::getString()]);
 
-            $content = match ($status) {
-                STS_BAD_REQUEST => (new E400)->default($e),
-                STS_UNAUTHORIZED => (new E401)->default($e),
-                STS_FORBIDDEN => (new E403)->default($e),
-                STS_NOT_FOUND => (new E404)->default($e),
-                STS_METHOD_NOT_ALLOWED => (new E405)->default($e),
-                STS_INTERNAL_SERVER_ERROR => (new E500)->default($e),
-                STS_NOT_IMPLEMENTED => (new E501)->default($e),
-                STS_SERVICE_UNAVAILABLE => (new E503)->default($e),
-            };
-
-            $this->page($content);
-        } catch (Throwable) {
-            return;
+            return $content;
         }
+
+        if (Request::header('Layout-State') != self::$LAYOUT_STATE)
+            $content = self::renderizeLayout($content);
+
+        return [
+            'head' => self::$HEAD,
+            'layoutState' => self::$LAYOUT_STATE,
+            'content' => $content
+        ];
     }
 
-    function catch(Throwable $e)
+    protected function renderizeBase($content = ''): string
+    {
+        $version = cache('energize-front-version', fn() => [
+            'script' => md5(View::render("_base/script")),
+            'style' => md5(View::render("_base/style"))
+        ]);
+
+        $template = View::render('_base/base', ['HEAD' => self::$HEAD]);
+
+        return prepare($template, [
+            'CONTENT' => $content,
+            'LAYOUT_STATE' => self::$LAYOUT_STATE,
+            'ALERT' => encapsulate(self::$ALERT),
+            'SCRIPT' => url('script.js', ['v' => $version['script']]),
+            'STYLE' => url('style.css', ['v' => $version['style']]),
+        ]);
+    }
+
+    protected function renderizeLayout($content = ''): string
+    {
+        if (is_null(self::$LAYOUT))
+            return "<div id='CONTENT'>\n$content\n</div>";
+
+        $template = View::render("_base/layout/" . self::$LAYOUT, ['HEAD' => self::$HEAD]);
+
+        return prepare($template, [
+            'CONTENT' => $content
+        ]);
+    }
+
+    protected function renderizeThrowable(Throwable $e)
     {
         $status = $e->getCode();
+        $message = $e->getMessage();
+
+        if ($status == STS_REDIRECT)
+            $this->redirect($e);
 
         if (!is_httpStatus($status))
             $status = !is_class($e, Error::class) ? STS_BAD_REQUEST : STS_INTERNAL_SERVER_ERROR;
-
-        $message = $e->getMessage();
 
         if (empty($message))
             $message = env("STM_$status");
@@ -108,66 +99,66 @@ return new class {
         if (is_json($message))
             $message = json_decode($message, true);
 
-        if (is_array($message) && isset($message['message']))
-            $message = $message['message'];
+        if (!is_array($message) || !isset($message['message']))
+            $message = ['message' => $message];
 
-        $response = [
-            'info' => [
-                'mx' => true,
-                'status' => $status,
-                'error' => $status > 399,
-                'message' => $message,
-                'alert' => Front::getAlerts(),
-            ],
-            'data' => null
+        $info = [
+            'mx' => true,
+            'status' => $status,
+            'error' => $status > 399,
+            ...$message
         ];
 
-        $headerMessageError = is_array($message) ? implode('|', $message) : $message;
-        Response::header('Error-Message', remove_accents($headerMessageError));
-        Response::header('Error-Status', $response['info']['status']);
+        Response::header('Mx-Error-Message', $info['message']);
+        Response::header('Mx-Error-Status', $info['status']);
 
-        if (env('DEV'))
-            $response['log'] = Log::getArray();
-
-        if (env('DEV') && $response['info']['error']) {
-            $response['info']['file'] = $e->getFile();
-            $response['info']['line'] = $e->getLine();
-            Response::header('Error-File', $response['info']['file']);
-            Response::header('Error-Line', $response['info']['line']);
+        if (env('DEV') && $info['error']) {
+            $info['file'] = $e->getFile();
+            $info['line'] = $e->getLine();
+            Response::header('Mx-Error-File', $info['file']);
+            Response::header('Mx-Error-Line', $info['line']);
         }
 
-        Response::status($status);
-        Response::cache(false);
-        Response::content($response);
-        Response::send();
+        $errorController = new \Controller\Energize\Error;
+        $content = $errorController->handleThrowable($e);
+        $content = $this->renderize($content);
+
+        if (is_array($content)) {
+            $content = [
+                'info' => $info,
+                'data' => $content
+            ];
+            $content['info']['alert'] = self::$ALERT;
+        }
+
+        return $content;
     }
 
-    function redirect(Throwable $e)
+    protected function redirect(Throwable $e): never
     {
         if (IS_PARTIAL) {
             $url = !empty($e->getMessage()) ? url($e->getMessage()) : url('.');
+
             $scheme = [
                 'info' => [
                     'mx' => true,
                     'status' => STS_REDIRECT,
                     'error' => false,
                     'location' => $url,
-                    'alert' => Front::getAlerts(),
+                    'alert' => self::$ALERT,
                 ],
                 'data' => null
             ];
 
-            if (env('DEV'))
-                $scheme['log'] = Log::getArray();
-
             Response::header('Mx-Location', $url);
-            Response::content($scheme);
             Response::status(STS_OK);
+
+            if (env('DEV')) $scheme['log'] = Log::getArray();
+
+            Response::content($scheme);
             Response::send();
         }
 
-        Response::header('location', $e->getMessage());
-        Response::status(STS_REDIRECT);
-        Response::send();
+        throw $e;
     }
 };

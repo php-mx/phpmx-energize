@@ -1,0 +1,26 @@
+html,
+body {
+    margin: 0px;
+    padding: 0px;
+    max-width: 100vw;
+    min-height: 100vh;
+}
+
+body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+#LAYOUT {
+    flex-grow: 1;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+style,
+script {
+    display: none;
+}

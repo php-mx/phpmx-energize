@@ -117,7 +117,7 @@ energize.go = (url, force = false) => {
   if (new URL(url).hostname != new URL(window.location).hostname) return energize.redirect(url);
   let state = document.getElementById("LAYOUT").dataset.state;
   energize.core
-    .request(url, "get", {}, { "Request-State": state })
+    .request(url, "get", {}, { "layout-State": state })
     .then((resp) => {
       if (!resp.info.mx) return energize.redirect(url);
 
@@ -223,7 +223,7 @@ energize.submit = (form, appentData = {}) => {
 
   let url = form.action;
   let state = document.getElementById("LAYOUT").dataset.state;
-  let header = { "Request-State": state };
+  let header = { "layout-State": state };
   let data = new FormData(form);
 
   for (let [key, value] of data.entries()) {

@@ -8,6 +8,6 @@ class Wellcome
 {
     function default()
     {
-        return View::render('_page/wellcome');
+        return View::render('energize/wellcome');
     }
 }
