@@ -47,4 +47,21 @@ abstract class Front
     {
         self::head('description', $description);
     }
+
+    /** Adiciona um alerta para o frontend */
+    static function alert(string $title, string|bool|null $content = null, ?bool $type = null): void
+    {
+        if (!is_string($content)) {
+            $type = $content;
+            $content = '';
+        }
+
+        $type = match ($type) {
+            true => 'success',
+            false => 'error',
+            default => 'neutral'
+        };
+
+        self::$ALERT[] = [$title, $content, $type];
+    }
 }
