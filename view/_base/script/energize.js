@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.querySelectorAll("script:not([static])").forEach((tag) => tag.setAttribute("static", ""));
   energize.core.run();
   energize.alert(currentAlert);
-  console.log("⚡ENERGIZE⚡");
+  console.log("⚡");
 });
 
 const app = {};
@@ -139,20 +139,6 @@ energize.go = (url, force = false) => {
     .catch(() => null);
 };
 
-energize.fragment = (url, target, mode = 0) => {
-  energize.core
-    .request(url, "get", {}, { "Request-Fragment": true }, false)
-    .then((resp) => {
-      if (mode) {
-        target.insertAdjacentHTML(mode == 1 ? "beforeend" : "afterbegin", resp.data.content);
-      } else {
-        target.innerHTML = resp.data.content;
-      }
-      energize.core.run();
-    })
-    .catch(() => null);
-};
-
 energize.redirect = (url) => {
   window.location.href = url;
   return false;
@@ -178,9 +164,9 @@ energize.alert = (listAlert) => {
     let content = item[1] ?? "";
     let type = item[2] ?? "";
     let svg = {
-      neutral: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 3H14V14H10V3M10 21V17H14V21H10Z" /></svg>`,
-      success: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z" /></svg>`,
-      error: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 6.91L17.09 4L12 9.09L6.91 4L4 6.91L9.09 12L4 17.09L6.91 20L12 14.91L17.09 20L20 17.09L14.91 12L20 6.91Z" /></svg>`,
+      neutral: `[#ICON:alert-neutral]`,
+      success: `[#ICON:alert-success]`,
+      error: `[#ICON:alert-error]`,
     }[type];
     let alert = `<div class="${type}">${svg}<span>${title}</span><span>${content}</span></div>`;
     div.insertAdjacentHTML("beforeend", alert);
@@ -279,3 +265,7 @@ energize.decapsulate = (value) => JSON.parse(value);
 energize.api = (url, method, data) => energize.core.request(url, method, data, { "Request-Api": true }, false);
 
 energize.uid = () => "_" + Date.now().toString(36) + Math.random().toString(36).substr(2);
+
+// [#VIEW:./energize/current-link]
+// [#VIEW:./energize/dinamic-link]
+// [#VIEW:./energize/form]

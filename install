@@ -14,12 +14,11 @@ return new class extends Terminal {
 
         $this->promote('routes/front.php');
 
-        $this->promote('view/_base/base/_content.html');
-        $this->promote('view/_base/error/_content.html');
-        $this->promote('view/_base/layout/center/_content.html');
-        $this->promote('view/_base/layout/default/_content.html');
-        $this->promote('view/_base/script/_script.js');
-        $this->promote('view/_base/style/_style.css');
+        $this->promote('view/_base/base.html');
+        $this->promote('view/_base/error.html');
+        $this->promote('view/_base/layout/default.html');
+        $this->promote('view/_base/script.js');
+        $this->promote('view/_base/style.css');
 
         $this->promote('view/_page/wellcome/_content.html');
         $this->promote('view/_page/wellcome/_style.css');

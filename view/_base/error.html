@@ -1,13 +1,13 @@
 <div id="__scope">
   <h3>[#status]</h3>
-  <p class="tc">[#message]</p>
+  <p>[#message]</p>
 </div>
 
 <style>
   #__scope {
     width: 100%;
     height: 100vh;
-    background: linear-gradient(to top left, #803dc9 0%, #425fba 100%);
+    background: radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -17,35 +17,14 @@
     flex-direction: column;
     padding: 2rem;
 
-    > div {
-      width: 100%;
-      height: 80%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
+    h3 {
+      font-size: 2.5rem;
+      margin: 0;
+      letter-spacing: 1px;
 
-      h1 {
-        font-size: 2.5rem;
-        margin: 0;
-        letter-spacing: 1px;
-
-        b {
-          background: linear-gradient(to right, #ffcc00, #ff2a68);
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: pulse 1.5s infinite ease-in-out;
-        }
-      }
-
-      p {
-        margin-top: 1rem;
-        font-size: 1.2rem;
-        font-weight: 500;
-        font-size: 1.2rem;
-        font-weight: 400;
-        color: #cccccc;
-      }
+      background: linear-gradient(to right, #803dc9, #425fba);
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
   }
 </style>
