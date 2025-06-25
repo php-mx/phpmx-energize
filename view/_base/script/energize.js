@@ -117,7 +117,7 @@ energize.go = (url, force = false) => {
   if (new URL(url).hostname != new URL(window.location).hostname) return energize.redirect(url);
   let state = document.getElementById("LAYOUT").dataset.state;
   energize.core
-    .request(url, "get", {}, { "layout-State": state })
+    .request(url, "get", {}, { "Layout-State": state })
     .then((resp) => {
       if (!resp.info.mx) return energize.redirect(url);
 
@@ -209,12 +209,8 @@ energize.submit = (form, appentData = {}) => {
 
   let url = form.action;
   let state = document.getElementById("LAYOUT").dataset.state;
-  let header = { "layout-State": state };
+  let header = { "Layout-State": state };
   let data = new FormData(form);
-
-  for (let [key, value] of data.entries()) {
-    console.log(key, value);
-  }
 
   appentData.formKey = form.getAttribute("data-form-key");
   for (const [key, value] of Object.entries(appentData)) data.append(key, value);
@@ -266,6 +262,6 @@ energize.api = (url, method, data) => energize.core.request(url, method, data, {
 
 energize.uid = () => "_" + Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-// [#VIEW:./energize/current-link]
 // [#VIEW:./energize/dinamic-link]
+// [#VIEW:./energize/current-link]
 // [#VIEW:./energize/form]

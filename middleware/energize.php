@@ -46,9 +46,18 @@ return new class extends Front {
             $content = self::renderizeLayout($content);
 
         return [
-            'head' => self::$HEAD,
-            'layoutState' => self::$LAYOUT_STATE,
-            'content' => $content
+            'info' => [
+                'mx' => true,
+                'status' => Response::getStatus(),
+                'error' => is_httpStatusError(Response::getStatus()),
+                'message' => env('STM_' . Response::getStatus()),
+                'alert' => self::$ALERT,
+            ],
+            'data' => [
+                'head' => self::$HEAD,
+                'state' => self::$LAYOUT_STATE,
+                'content' => $content
+            ]
         ];
     }
 
@@ -102,32 +111,27 @@ return new class extends Front {
         if (!is_array($message) || !isset($message['message']))
             $message = ['message' => $message];
 
-        $info = [
-            'mx' => true,
-            'status' => $status,
-            'error' => $status > 399,
-            ...$message
-        ];
+        Response::status($status);
+        Response::header('Mx-Error-Message', $message['message']);
+        Response::header('Mx-Error-Status', $status);
 
-        Response::header('Mx-Error-Message', $info['message']);
-        Response::header('Mx-Error-Status', $info['status']);
-
-        if (env('DEV') && $info['error']) {
-            $info['file'] = $e->getFile();
-            $info['line'] = $e->getLine();
-            Response::header('Mx-Error-File', $info['file']);
-            Response::header('Mx-Error-Line', $info['line']);
+        if (env('DEV')) {
+            Response::header('Mx-Error-File', $e->getFile());
+            Response::header('Mx-Error-Line', $e->getLine());
         }
 
-        $errorController = new \Controller\Energize\Error;
-        $content = $errorController->handleThrowable($e);
-        $content = $this->renderize($content);
+        if (IS_GET) {
+            $errorController = new \Controller\Energize\Error;
+            $content = $errorController->handleThrowable($e);
+            $content = $this->renderize($content);
+        }
+
+        $content = $content ?? ['info' => ['mx' => true,], 'data' => null];
 
         if (is_array($content)) {
-            $content = [
-                'info' => $info,
-                'data' => $content
-            ];
+            $content['info']['status'] = $status;
+            $content['info']['error'] = $status > 399;
+            $content['info'] = [...$content['info'], ...$message];
             $content['info']['alert'] = self::$ALERT;
         }
 
@@ -156,9 +160,10 @@ return new class extends Front {
             if (env('DEV')) $scheme['log'] = Log::getArray();
 
             Response::content($scheme);
-            Response::send();
+        } else {
+            Response::header('location', $e->getMessage());
+            Response::status(STS_REDIRECT);
         }
-
-        throw $e;
+        Response::send();
     }
 };
