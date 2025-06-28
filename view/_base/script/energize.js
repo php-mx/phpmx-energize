@@ -15,6 +15,7 @@ energize.registred = false;
 
 energize.core = {
   registred: {},
+  instanceVue: {},
   run() {
     Object.keys(energize.core.registred).forEach((querySelector) =>
       document.body.querySelectorAll(querySelector).forEach((element) => {
@@ -26,7 +27,6 @@ energize.core = {
       eval(tag.innerHTML);
       tag.setAttribute("static", "");
     });
-    energize.aside();
   },
   register(querySelector, action) {
     energize.core.registred[querySelector] = action;
@@ -93,11 +93,29 @@ energize.core = {
 energize.update = {
   content(content) {
     let element = document.getElementById("CONTENT");
+
+    Object.entries(energize.core.instanceVue).forEach(([id, app]) => {
+      const el = document.getElementById(id);
+      if (el && element.contains(el)) {
+        app.unmount();
+        delete energize.core.instanceVue[id];
+      }
+    });
+
     element.innerHTML = content;
     energize.core.run();
   },
   layout(content, state) {
     let element = document.getElementById("LAYOUT");
+
+    Object.entries(energize.core.instanceVue).forEach(([id, app]) => {
+      const el = document.getElementById(id);
+      if (el && element.contains(el)) {
+        app.unmount();
+        delete energize.core.instanceVue[id];
+      }
+    });
+
     element.innerHTML = content;
     element.dataset.state = state;
     energize.core.run();
@@ -142,19 +160,6 @@ energize.go = (url, force = false) => {
 energize.redirect = (url) => {
   window.location.href = url;
   return false;
-};
-
-energize.aside = (asideId = null) => {
-  let aside = document.getElementById(asideId);
-
-  let mode = aside && !aside.classList.contains("__show__");
-
-  document.querySelectorAll(".__show__").forEach((element) => element.classList.remove("__show__"));
-
-  if (mode) {
-    document.body.classList.add("__show__");
-    aside.classList.add("__show__");
-  }
 };
 
 energize.alert = (listAlert) => {
@@ -254,14 +259,48 @@ energize.submit = (form, appentData = {}) => {
     .catch(() => null);
 };
 
-energize.encapsulate = (value) => JSON.stringify(value);
+energize.vue = (component, elementId) => {
+  energize.core
+    .loadScript("/assets/third/vue.js")
+    .then(() => {
+      if (energize.core.instanceVue[elementId]) {
+        energize.core.instanceVue[elementId].unmount();
+        delete energize.core.instanceVue[elementId];
+      }
+      energize.core.instanceVue[elementId] = Vue.createApp(component());
+      energize.core.instanceVue[elementId].mount(`#${elementId}`);
+    })
+    .catch((e) => console.error("impossible to load [vue.js]", e));
+};
 
-energize.decapsulate = (value) => JSON.parse(value);
+energize.encapsulate = (value) => {
+  return JSON.stringify(value);
+};
 
-energize.api = (url, method, data) => energize.core.request(url, method, data, { "Request-Api": true }, false);
+energize.decapsulate = (value) => {
+  return JSON.parse(value);
+};
 
-energize.uid = () => "_" + Date.now().toString(36) + Math.random().toString(36).substr(2);
+energize.api = (url, method, data) => {
+  return energize.core.request(url, method, data, { "Request-Api": true }, false);
+};
 
-// [#VIEW:./energize/dinamic-link]
-// [#VIEW:./energize/current-link]
-// [#VIEW:./energize/form]
+energize.uid = () => {
+  return "_" + Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+
+energize.importFieldValue = (fieldId) => {
+  return energize.decapsulate(document.getElementById(fieldId).value);
+};
+
+energize.exportFieldValue = (fieldId, value) => {
+  document.getElementById(fieldId).value = energize.encapsulate(value);
+};
+
+energize.submitForm = (formId) => {
+  document.getElementById(formId).requestSubmit();
+};
+
+// [#VIEW:./energize/dinamic-link.js]
+// [#VIEW:./energize/current-link.js]
+// [#VIEW:./energize/form.js]
