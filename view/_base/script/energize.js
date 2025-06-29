@@ -301,6 +301,28 @@ energize.submitForm = (formId) => {
   document.getElementById(formId).requestSubmit();
 };
 
-// [#VIEW:./energize/dinamic-link.js]
-// [#VIEW:./energize/current-link.js]
-// [#VIEW:./energize/form.js]
+energize.core.register("[href]:not([static]):not([href=''])", (element) => {
+  element.addEventListener("click", (event) => {
+    event.preventDefault();
+    let url = new URL(element.href ?? element.getAttribute("href"), document.baseURI).href;
+    energize.go(url, document.baseURI);
+  });
+});
+
+energize.core.register("[href]:not([href=''])", (element) => {
+  let url = new URL(element.href ?? element.getAttribute("href"), document.baseURI).href + "/";
+  let href = window.location.href + "/";
+
+  element.classList.remove("active-link");
+  element.classList.remove("current-link");
+
+  if (href.startsWith(url)) element.classList.add("active-link");
+  if (url == href) element.classList.add("current-link");
+});
+
+energize.core.register("form[data-form-key]:not([static])", (element) => {
+  element.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    energize.submit(element);
+  });
+});
