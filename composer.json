@@ -25,6 +25,6 @@
     },
     "require": {
         "phpmx/server": "^1.1",
-        "phpmx/view": "^1.1"
+        "phpmx/view": "^1.2"
     }
 }
