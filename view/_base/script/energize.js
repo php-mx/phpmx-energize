@@ -185,13 +185,21 @@ energize.alert = (listAlert) => {
 };
 
 energize.copy = (copyText, alertText = null) => {
-  document.body.classList.add("__copying__");
-  let copy = document.getElementById("COPY");
-  copy.value = copyText;
-  copy.select();
-  copy.setSelectionRange(0, 99999);
+  const textarea = document.createElement("textarea");
+  textarea.value = copyText;
+
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+
+  document.body.appendChild(textarea);
+
+  textarea.select();
+  textarea.setSelectionRange(0, 99999);
+
   document.execCommand("copy");
-  document.body.classList.remove("__copying__");
+
+  document.body.removeChild(textarea);
+
   if (alertText) energize.alert([[alertText, "", "success"]]);
 };
 
